@@ -1,0 +1,125 @@
+<!doctype html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+
+    body { margin:0; padding:0; font-size:10px; }
+    #content li { font-size:1.6em; }
+
+    </style>
+</head>
+<body>
+
+<div id="content"></div>
+  
+<script type="text/javascript">
+function autorun() {
+
+var SPS = {
+    games: []
+};
+var html = '';
+var config = { 
+    "day": "today",
+    "env": "prod",
+    "debug": true
+};
+
+if (config.env === "prod") {
+    var staturl = 'https://api.stattleship.com/baseball/mlb/probable_pitchers?season_id=mlb-2018&on='+config.day;
+} else {
+    var staturl = 'http://mlbdata.local/test-data.json';
+}
+
+var request = new Request(staturl, {
+    method: 'GET',
+    mode: 'cors',
+    cache: 'default',
+    headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': 'Token token=b435ac1d7bc7ef8d92386f465070fe95', 
+        'Accept': 'application/vnd.stattleship.com; version=1'
+    })
+});
+
+fetch(request).then(function(response) {
+    if (config.debug) { console.log(response); }
+    return response.json();
+
+}).then(function(data) {
+    if (config.debug) { console.log(data); }
+    /* begin games array by assigning out game ids */
+    Object.keys(data.games).forEach(function(key) {
+        var game_id = data.games[key]["id"];
+        var game = { 
+            "id": data.games[key]["id"],
+            "label": data.games[key]["label"],
+            // "away": "",
+            // "home": "",
+            // "away_sp": "",
+            // "home_sp": "",
+            "player_ids": [],
+            "player_names": [],
+            "mlbam_id": []
+        };
+        SPS.games.push(game);
+    });
+    /* loop through probables */
+    Object.keys(data.probable_pitchers).forEach(function(key) {
+        var sps_length = SPS.games.length;
+        for (var i=sps_length-1; i >= 0; i--) {
+            if (data.probable_pitchers[key]["game_id"] == SPS.games[i]["id"]) {
+                SPS.games[i]["player_ids"].push(data.probable_pitchers[key]["player_id"]);
+            }
+        }
+    });
+    /* loop through players */
+    Object.keys(data.players).forEach(function(data_key) {
+        var sps_length = SPS.games.length;
+        for (var i=sps_length-1; i >= 0; i--) {
+            Object.keys(SPS.games[i]["player_ids"]).forEach(function(sps_key) {
+                if (data.players[data_key]["id"] == SPS.games[i]["player_ids"][sps_key]) {
+                    SPS.games[i]["player_names"].push(data.players[data_key]["last_name"]);
+                    SPS.games[i]["mlbam_id"].push(data.players[data_key]["mlbam_id"]);
+                }
+            });
+        }
+    });
+
+    // VALIATION
+    // Object.keys(SPS.games).forEach(function(key) {
+    //     console.log(key, SPS.games[key]["id"]);
+    // });
+
+}).then(function() {
+    Object.keys(SPS.games).forEach(function(key) {
+        var label = SPS.games[key]["label"];
+        var players = SPS.games[key]["player_names"];
+        var url_pre = 'http://www.brooksbaseball.net/velo.php?player=';
+        var url_suf = '&b_hand=-1&time=game&minmax=ci&var=mph&s_type=2&startDate=01/01/2017&endDate=01/01/2019&gFilt=&pFilt=FA';
+        html += '<h2>'+label+'</h2><ul>';
+        for (var i=players.length-1; i >= 0; i--) {
+            html += '<li><a target="_blank" href="'+url_pre+SPS.games[key]["mlbam_id"][i]+url_suf+'">';
+            html += SPS.games[key]["player_names"][i];
+            html += '</a></li>';
+        }
+        html += '</ul>';
+    });
+    var elem = document.getElementById('content');
+    elem.innerHTML = html;
+    if (config.debug) { console.log(SPS); }
+}); // end fetch
+} // end autorun
+
+if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
+else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
+else window.onload = autorun;
+</script>
+
+
+
+</body>
+</html>
