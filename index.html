@@ -14,6 +14,11 @@
 </head>
 <body>
 
+<div id="links">
+    <ul>
+        <li><a href="http://mlb.mlb.com/news/probable_pitchers/" target="_blank">SPs</a></li>
+        <li><a href="http://developers.stattleship.com/" target="_blank">docs</a></li>   
+</div>
 <div id="content"></div>
   
 
@@ -23,7 +28,8 @@ bring in mlb SP page
 get individual player stats
 css grid
 show only most recently updated SP if there are more than one
-
+team outcome streaks
+team season stats
 -->
 <script type="text/javascript">
 function autorun() {
@@ -35,8 +41,8 @@ var SPS = {
 var html = '';
 var config = { 
     "day": "today",
-    "env": "prod",
-    "debug": false
+    "env": "pro",
+    "debug": true
 };
 
 /* TEAMS */
@@ -54,7 +60,7 @@ fetch(teams_request).then(function(response) {
 
 
 if (config.env === "prod") {
-    var url_games = 'https://api.stattleship.com/baseball/mlb/probable_pitchers?season_id=mlb-2018&on='+config.day;
+    var url_games = 'https://api.stattleship.com/baseball/mlb/starting_pitchers?season_id=mlb-2018&on='+config.day;
     //var staturl = 'https://api.stattleship.com/baseball/mlb/player_season_stats?player_id=mlb-gio-gonzalez&season_id=mlb-2018&on=today';
 } else {
     var url_games = 'http://mlbdata.local/sps/test-data.json';
@@ -86,7 +92,7 @@ fetch(games_request).then(function(response) {
                 //"pitcher_ids": [],
                 "players": []
             };
-            result.pitchers = _.filter(data.probable_pitchers, function(pitcher, key, pitchers) {
+            result.pitchers = _.filter(data.starting_pitchers, function(pitcher, key, pitchers) {
                 return pitcher.game_id === result.id;
             });
             // result.pitcher_ids = _.reduce(result.pitchers, function(result, value, key) {
@@ -129,7 +135,8 @@ fetch(games_request).then(function(response) {
 //         return response.json();
 
 //     }).then(function(data) {
-//         console.log(data.player_season_stats[0]["strikeouts_per_9_innings"]);
+//         //console.log(data.player_season_stats[0]["strikeouts_per_9_innings"]);
+//         console.log(data);
 //     });
 
 
@@ -149,7 +156,7 @@ fetch(games_request).then(function(response) {
             html += '<a target="_blank" href="'+url_pre+SPS.games[key]["players"][i]["mlbam_id"]+url_suf+'">';
             html += SPS.games[key]["players"][i]["last_name"];
             html += '</a>';
-            html += ' ' + SPS.games[key]["pitchers"][i]["updated_at"];
+//            html += ' ' + SPS.games[key]["pitchers"][i]["updated_at"];
             html += '</li>';
         }
         html += '</ul>';
