@@ -10,31 +10,57 @@
     #content li { font-size:1.6em; }
 
     </style>
+    <script src="./js/lodash.min.js"></script>
 </head>
 <body>
 
 <div id="content"></div>
   
+
+<!--
+roadmap:
+bring in mlb SP page
+get individual player stats
+css grid
+show only most recently updated SP if there are more than one
+
+-->
 <script type="text/javascript">
 function autorun() {
 
 var SPS = {
+    teams: [],
     games: []
 };
 var html = '';
 var config = { 
     "day": "today",
     "env": "prod",
-    "debug": true
+    "debug": false
 };
 
+/* TEAMS */
+var url_teams = 'http://mlbdata.local/sps/teams.json';
+var teams_request = new Request(url_teams, {});
+fetch(teams_request).then(function(response) {
+    return response.json();
+}).then(function(team_data) {
+    // TEAM DATA
+    var teams = _.keyBy(team_data.teams, function(team) {
+        var result = { 'id':team.id, 'slug':team['slug'], 'name':team['nickname'] };;
+        SPS.teams.push(result);
+    });
+}); // end fetch
+
+
 if (config.env === "prod") {
-    var staturl = 'https://api.stattleship.com/baseball/mlb/probable_pitchers?season_id=mlb-2018&on='+config.day;
+    var url_games = 'https://api.stattleship.com/baseball/mlb/probable_pitchers?season_id=mlb-2018&on='+config.day;
+    //var staturl = 'https://api.stattleship.com/baseball/mlb/player_season_stats?player_id=mlb-gio-gonzalez&season_id=mlb-2018&on=today';
 } else {
-    var staturl = 'http://mlbdata.local/test-data.json';
+    var url_games = 'http://mlbdata.local/sps/test-data.json';
 }
 
-var request = new Request(staturl, {
+var games_request = new Request(url_games, {
     method: 'GET',
     mode: 'cors',
     cache: 'default',
@@ -45,66 +71,86 @@ var request = new Request(staturl, {
     })
 });
 
-fetch(request).then(function(response) {
+fetch(games_request).then(function(response) {
     if (config.debug) { console.log(response); }
     return response.json();
 
 }).then(function(data) {
+    // GAME DATA
     if (config.debug) { console.log(data); }
-    /* begin games array by assigning out game ids */
-    Object.keys(data.games).forEach(function(key) {
-        var game_id = data.games[key]["id"];
-        var game = { 
-            "id": data.games[key]["id"],
-            "label": data.games[key]["label"],
-            // "away": "",
-            // "home": "",
-            // "away_sp": "",
-            // "home_sp": "",
-            "player_ids": [],
-            "player_names": [],
-            "mlbam_id": []
-        };
-        SPS.games.push(game);
-    });
-    /* loop through probables */
-    Object.keys(data.probable_pitchers).forEach(function(key) {
-        var sps_length = SPS.games.length;
-        for (var i=sps_length-1; i >= 0; i--) {
-            if (data.probable_pitchers[key]["game_id"] == SPS.games[i]["id"]) {
-                SPS.games[i]["player_ids"].push(data.probable_pitchers[key]["player_id"]);
-            }
-        }
-    });
-    /* loop through players */
-    Object.keys(data.players).forEach(function(data_key) {
-        var sps_length = SPS.games.length;
-        for (var i=sps_length-1; i >= 0; i--) {
-            Object.keys(SPS.games[i]["player_ids"]).forEach(function(sps_key) {
-                if (data.players[data_key]["id"] == SPS.games[i]["player_ids"][sps_key]) {
-                    SPS.games[i]["player_names"].push(data.players[data_key]["last_name"]);
-                    SPS.games[i]["mlbam_id"].push(data.players[data_key]["mlbam_id"]);
-                }
+        var set_games = _.keyBy(data.games, function(game) {
+            var result = { 
+                "id": game.id,
+                "label": game.label,
+                "pitchers": [],
+                //"pitcher_ids": [],
+                "players": []
+            };
+            result.pitchers = _.filter(data.probable_pitchers, function(pitcher, key, pitchers) {
+                return pitcher.game_id === result.id;
             });
-        }
-    });
+            // result.pitcher_ids = _.reduce(result.pitchers, function(result, value, key) {
+            //     (result[key] || (result[key] = [])).push(value.player_id);
+            //     return result;
+            // }, {});
+            //_.keyBy(result.pitcher_ids, function(pitcher) {
+            _.keyBy(result.pitchers, function(pitcher) {
+                _.filter(data.players, function(player, key, players) {
+                    if ( player.id == pitcher.player_id ) {
+                        result.players.push(player);
+                    }
+                });
+                _.filter(data.teams, function(team, key, teams) {
+                    if ( team.id == pitcher.player_id ) {
+                        result.players.push(player);
+                    }
+                });
 
-    // VALIATION
-    // Object.keys(SPS.games).forEach(function(key) {
-    //     console.log(key, SPS.games[key]["id"]);
-    // });
+            });
+            SPS.games.push(result);
+        });
+        if (config.debug) { console.log(SPS.games); }
+
+// }).then(function() {
+//     // PLAYER STATS
+//     var url_player = 'https://api.stattleship.com/baseball/mlb/player_season_stats?player_id=mlb-gio-gonzalez&season_id=mlb-2018&on=today';
+//     var games_request = new Request(url_player, {
+//     method: 'GET',
+//     mode: 'cors',
+//     cache: 'default',
+//     headers: new Headers({
+//         'Content-Type': 'application/json',
+//         'Authorization': 'Token token=b435ac1d7bc7ef8d92386f465070fe95', 
+//         'Accept': 'application/vnd.stattleship.com; version=1'
+//         })
+//     });
+//     fetch(games_request).then(function(response) {
+//         if (config.debug) { console.log(response); }
+//         return response.json();
+
+//     }).then(function(data) {
+//         console.log(data.player_season_stats[0]["strikeouts_per_9_innings"]);
+//     });
+
 
 }).then(function() {
+    // INJECT AS HTML
     Object.keys(SPS.games).forEach(function(key) {
         var label = SPS.games[key]["label"];
-        var players = SPS.games[key]["player_names"];
+        var players = SPS.games[key]["players"];
         var url_pre = 'http://www.brooksbaseball.net/velo.php?player=';
         var url_suf = '&b_hand=-1&time=game&minmax=ci&var=mph&s_type=2&startDate=01/01/2017&endDate=01/01/2019&gFilt=&pFilt=FA|SI|FC';
         html += '<h2>'+label+'</h2><ul>';
         for (var i=players.length-1; i >= 0; i--) {
-            html += '<li><a target="_blank" href="'+url_pre+SPS.games[key]["mlbam_id"][i]+url_suf+'">';
-            html += SPS.games[key]["player_names"][i];
-            html += '</a></li>';
+            var team = _.find(SPS.teams, { 'id': SPS.games[key]["pitchers"][i]["team_id"] });
+            team_slug = _.upperCase(_.replace(team.slug, 'mlb-', ''));
+            html += '<li>';
+            html += team_slug + ' ';
+            html += '<a target="_blank" href="'+url_pre+SPS.games[key]["players"][i]["mlbam_id"]+url_suf+'">';
+            html += SPS.games[key]["players"][i]["last_name"];
+            html += '</a>';
+            html += ' ' + SPS.games[key]["pitchers"][i]["updated_at"];
+            html += '</li>';
         }
         html += '</ul>';
     });
