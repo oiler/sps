@@ -40,7 +40,7 @@ var config = {
 };
 
 /* TEAMS */
-var url_teams = 'http://mlbdata.local/sps/teams.json';
+var url_teams = 'teams.json';
 var teams_request = new Request(url_teams, {});
 fetch(teams_request).then(function(response) {
     return response.json();
