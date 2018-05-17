@@ -57,7 +57,7 @@ if (config.env === "prod") {
     var url_games = 'https://api.stattleship.com/baseball/mlb/probable_pitchers?season_id=mlb-2018&on='+config.day;
     //var staturl = 'https://api.stattleship.com/baseball/mlb/player_season_stats?player_id=mlb-gio-gonzalez&season_id=mlb-2018&on=today';
 } else {
-    var url_games = 'http://mlbdata.local/sps/test-data.json';
+    var url_games = 'test-data.json';
 }
 
 var games_request = new Request(url_games, {
