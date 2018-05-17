@@ -4,13 +4,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
     <style>
 
     body { margin:0; padding:0; font-size:10px; }
     #content li { font-size:1.6em; }
 
     </style>
-    <script src="./js/lodash.min.js"></script>
+    <script src="./lodash.min.js"></script>
 </head>
 <body>
 
@@ -35,12 +38,12 @@ var SPS = {
 var html = '';
 var config = { 
     "day": "today",
-    "env": "prod",
-    "debug": false
+    "env": "pro",
+    "debug": true
 };
 
 /* TEAMS */
-var url_teams = 'http://mlbdata.local/sps/teams.json';
+var url_teams = 'teams.json';
 var teams_request = new Request(url_teams, {});
 fetch(teams_request).then(function(response) {
     return response.json();
@@ -57,7 +60,7 @@ if (config.env === "prod") {
     var url_games = 'https://api.stattleship.com/baseball/mlb/probable_pitchers?season_id=mlb-2018&on='+config.day;
     //var staturl = 'https://api.stattleship.com/baseball/mlb/player_season_stats?player_id=mlb-gio-gonzalez&season_id=mlb-2018&on=today';
 } else {
-    var url_games = 'http://mlbdata.local/sps/test-data.json';
+    var url_games = './testdata.json';
 }
 
 var games_request = new Request(url_games, {
