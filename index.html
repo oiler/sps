@@ -10,7 +10,7 @@
     #content li { font-size:1.6em; }
 
     </style>
-    <script src="./js/lodash.min.js"></script>
+    <script src="./lodash.min.js"></script>
 </head>
 <body>
 
@@ -46,7 +46,7 @@ var config = {
 };
 
 /* TEAMS */
-var url_teams = 'http://mlbdata.local/sps/teams.json';
+var url_teams = './teams.json';
 var teams_request = new Request(url_teams, {});
 fetch(teams_request).then(function(response) {
     return response.json();
@@ -62,7 +62,7 @@ fetch(teams_request).then(function(response) {
 if (config.env === "prod") {
     var url_games = 'https://api.stattleship.com/baseball/mlb/starting_pitchers?season_id=mlb-2018&on='+config.day;
 } else {
-    var url_games = 'http://mlbdata.local/sps/test-data.json';
+    var url_games = './test-data.json';
 }
 
 var games_request = new Request(url_games, {
