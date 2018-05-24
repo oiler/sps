@@ -146,8 +146,9 @@ fetch(games_request).then(function(response) {
 
             var team = _.find(SPS.teams, { 'id': SPS.games[key]["pitchers"][i]["team_id"] });
             var team_slug = _.upperCase(_.replace(team.slug, 'mlb-', ''));
-
             var player_slug = _.replace( SPS.games[key]["players"][i]["slug"], 'mlb-', '');
+            var updated_at_date = (SPS.games[key]["pitchers"][i]["updated_at"]).slice(5,10);
+            var updated_at_time = (SPS.games[key]["pitchers"][i]["updated_at"]).slice(11,16);
 
             var player_id = SPS.games[key]["players"][i]["mlbam_id"];
             var brooks = 'http://www.brooksbaseball.net/velo.php?player=' +player_id+ '&b_hand=-1&time=game&minmax=ci&var=mph&s_type=2&startDate=01/01/2017&endDate=01/01/2019&gFilt=&pFilt=FA|SI|FC';
@@ -161,7 +162,7 @@ fetch(games_request).then(function(response) {
             html += '</a> ';
             html += ' <a target="_blank" href="'+brooks+'">B</a> ';
             html += ' <a target="_blank" href="'+savant+'">S</a> ';
-            html += ' ' + SPS.games[key]["pitchers"][i]["updated_at"];
+            html += ' ' + updated_at_date + ' ' + updated_at_time;
             html += '</li>';
 
         }
