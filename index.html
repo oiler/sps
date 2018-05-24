@@ -132,23 +132,18 @@ fetch(games_request).then(function(response) {
 }).then(function(data) {
     // GAME DATA
     if (config.debug) { console.log(data); }
-        var set_games = _.keyBy(data.games, function(game) {
+        data.games.forEach(function(game) {
             var result = { 
                 "id": game.id,
                 "label": game.label,
                 "pitchers": [],
-                //"pitcher_ids": [],
                 "players": []
             };
             result.pitchers = _.filter(data.probable_pitchers, function(pitcher, key, pitchers) {
                 return pitcher.game_id === result.id;
             });
-            // result.pitcher_ids = _.reduce(result.pitchers, function(result, value, key) {
-            //     (result[key] || (result[key] = [])).push(value.player_id);
-            //     return result;
-            // }, {});
-            //_.keyBy(result.pitcher_ids, function(pitcher) {
-            _.keyBy(result.pitchers, function(pitcher) {
+            result.pitchers.forEach(function(pitcher) {
+
                 _.filter(data.players, function(player, key, players) {
                     if ( player.id == pitcher.player_id ) {
                         result.players.push(player);
