@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TableSaw Stack Table</title>
+
+</head>
+
+<style>
+body {     
+    margin: 0;
+    padding: 0;
+    color: #000;
+    background-color: #fff;
+    font: 100%/1.2 sans-serif; 
+}
+.tablegrid { 
+
+}
+.tablegrid * {
+    box-sizing: border-box;
+}
+.tablegrid .game_col {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(50px, 1fr));
+  grid-auto-flow: row;
+}
+.tablegrid .sp_row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(50px, 1fr));
+}
+
+
+.tablegrid .box {
+    padding: 2px;
+}
+
+
+
+</style>
+
+<body>
+
+<div class="tablegrid">
+<!--     <div class="row">
+        <div class="box header">a</div>
+        <div class="box header">b</div>
+        <div class="box header">c</div>
+        <div class="box header">d</div>
+    </div>
+    <div class="row">
+        <div class="box">data a row 1</div>
+        <div class="box">data b row 1</div>
+        <div class="box">data c row 1</div>
+        <div class="box">data d row 1</div>
+    </div>
+    <div class="row">
+        <div class="box">data a row 2</div>
+        <div class="box">data b row 2</div>
+        <div class="box">data c row 2</div>
+        <div class="box">data d row 2</div>
+    </div> -->
+</div>
+<div class="tablegrid">
+    <div class="game_col">
+        <div class="header">a vs b</div>
+        <div class="sp_row">
+            <div class="box">data a row 1</div>
+            <div class="box">data a row 2</div>
+            <div class="box">data a row 3</div>
+            <div class="box">data a row 4</div>
+        </div>
+        <div class="sp_row">
+            <div class="box">data b row 1</div>
+            <div class="box">data b row 2</div>
+            <div class="box">data b row 3</div>
+            <div class="box">data b row 4</div>
+        </div>
+        <div class="sp_row">
+            <div class="box">data c row 1</div>
+            <div class="box">data c row 2</div>
+            <div class="box">data c row 3</div>
+            <div class="box">data c row 4</div>
+        </div>
+    </div>
+    <div class="game_col">
+        <div class="header">a vs b</div>
+        <div class="sp_row">
+            <div class="box">data a row 1</div>
+            <div class="box">data a row 2</div>
+            <div class="box">data a row 3</div>
+            <div class="box">data a row 4</div>
+        </div>
+        <div class="sp_row">
+            <div class="box">data b row 1</div>
+            <div class="box">data b row 2</div>
+            <div class="box">data b row 3</div>
+            <div class="box">data b row 4</div>
+        </div>
+        <div class="sp_row">
+            <div class="box">data c row 1</div>
+            <div class="box">data c row 2</div>
+            <div class="box">data c row 3</div>
+            <div class="box">data c row 4</div>
+        </div>
+    </div>
+
+
+</div>
+
+
+</body>
+</html>

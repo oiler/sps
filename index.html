@@ -7,26 +7,68 @@
     <title>SPs</title>
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
-    <style>
+<style>
+/* utilities */
+html { box-sizing:border-box; } 
+*, *::before, *::after { box-sizing:inherit; }
+.clearfix::after { content:''; display:table; clear:both; }
+.center-block { margin:0 auto; }
+.box-shadow { box-shadow:0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); }
+a { color:inherit; text-decoration:none; }
 
-    body { margin:0; padding:0; font-size:10px; }
-    #links li { font-size:1.2em; }
-    #links a { display:inline-block; position:relative; }
+.section { margin-bottom:32px; }
 
-    #content li { font-size:1.6em; }
+body { margin:0; padding:0; font-size:10px; }
+.container { width:100%; max-width:600px; margin:0 auto; }
 
-    </style>
+.nav { width:100%; display:-webkit-flex; display:flex; margin-top:16px; }
+  .nav a {display:inline-block; position:relative; }
+  .nav a:first-child { margin-right:auto; }
+  .nav .home { font-size:22px; font-weight:bold; } 
+  .nav .item {
+    display:inline-block; 
+    font-size:16px;
+    border-radius:8px;
+    background:#000;
+    color:#fff;
+    padding:6px;
+    margin:0 6px;
+    text-decoration:none;
+  }
+
+.tablegrid * { box-sizing: border-box; }
+.tablegrid .game_col {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(50px, 1fr));
+  grid-auto-flow: row;
+}
+.tablegrid .sp_row {
+  grid-column: 1 / -1;
+  display: grid;
+  /*grid-template-columns: repeat(5, minmax(50px, 1fr));*/
+  grid-template-columns:10% 50% 10% 10% 20%;
+}
+
+.tablegrid .game_col { margin-bottom:16px; }
+.tablegrid .header { font-size:16px; font-weight:bold; margin-bottom:8px; }
+.tablegrid .sp_row { font-size:14px; margin-left:8px; }
+
+</style>
+
     <script src="./lodash.min.js"></script>
 </head>
 <body>
 
-<div id="links">
-    <a target="_blank" href="http://mlb.mlb.com/news/probable_pitchers/?tcid=nav_mlb_schedule">mlb old</a>
-    <a target="_blank" href="https://www.mlb.com/probable-pitchers">mlb new</a>
-    <a target="_blank" href="https://www.covers.com/sports/mlb/matchups">covers</a>
+<div class="container">
+    <div id="links" class="section nav">
+        <a class="home" href="/">SPs</a>
+        <a class="item box-shadow" target="_blank" href="http://mlb.mlb.com/news/probable_pitchers/?tcid=nav_mlb_schedule">mlb old</a>
+        <a class="item box-shadow" target="_blank" href="https://www.mlb.com/probable-pitchers">mlb new</a>
+        <a class="item box-shadow" target="_blank" href="https://www.covers.com/sports/mlb/matchups">covers</a>
+    </div>
+    <div id="content" class="section tablegrid"></div>
 </div>
-<div id="content"></div>
-  
 
 <!--
 roadmap:
@@ -46,8 +88,8 @@ var SPS = {
 var html = '';
 var config = { 
     "day": "today",
-    "env": "prod",
-    "debug": false
+    "env": "pro",
+    "debug": true
 };
 
 /* TEAMS */
@@ -149,7 +191,8 @@ fetch(games_request).then(function(response) {
     Object.keys(SPS.games).forEach(function(key) {
         var label = SPS.games[key]["label"];
         var players = SPS.games[key]["players"];
-        html += '<h2>'+label+'</h2><ul>';
+        html += '<div class="game_col">';
+        html += '<div class="header">' + label + '</div>';
         for (var i=players.length-1; i >= 0; i--) {
 
             var team = _.find(SPS.teams, { 'id': SPS.games[key]["pitchers"][i]["team_id"] });
@@ -163,18 +206,18 @@ fetch(games_request).then(function(response) {
             var savant = 'https://baseballsavant.mlb.com/savant-player/' + player_slug + '-' + player_id + '?stats=statcast-r-pitching-mlb';
             var mlb = 'http://m.mlb.com/player/' + player_id + '/' + player_slug + '?year=2018&stats=gamelogs-r-pitching-mlb';
 
-            html += '<li>';
-            html += team_slug + ' ';
-            html += ' <a target="_blank" href="' + mlb + '">';
+            html += '<div class="sp_row">';
+            html += '<div class="team">' + team_slug + '</div>';
+            html += '<div class="name"><a target="_blank" href="' + mlb + '">';
             html += SPS.games[key]["players"][i]["last_name"];
-            html += '</a> ';
-            html += ' <a target="_blank" href="' + brooks + '">B</a> ';
-            html += ' <a target="_blank" href="' + savant + '">S</a> ';
-            html += ' ' + updated_at_date + ' ' + updated_at_time;
-            html += '</li>';
+            html += '</a></div>';
+            html += '<div class="brooks"><a target="_blank" href="' + brooks + '">brooks</a></div>';
+            html += '<div class="savant"><a target="_blank" href="' + savant + '">savant</a></div>';
+            html += '<div class="datetime">' + updated_at_date + ' ' + updated_at_time + '</div>';
+            html += '</div>';
 
         }
-        html += '</ul>';
+        html += '</div>';
     });
     var elem = document.getElementById('content');
     elem.innerHTML = html;
