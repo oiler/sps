@@ -141,19 +141,29 @@ fetch(games_request).then(function(response) {
     Object.keys(SPS.games).forEach(function(key) {
         var label = SPS.games[key]["label"];
         var players = SPS.games[key]["players"];
-        var url_pre = 'http://www.brooksbaseball.net/velo.php?player=';
-        var url_suf = '&b_hand=-1&time=game&minmax=ci&var=mph&s_type=2&startDate=01/01/2017&endDate=01/01/2019&gFilt=&pFilt=FA|SI|FC';
         html += '<h2>'+label+'</h2><ul>';
         for (var i=players.length-1; i >= 0; i--) {
+
             var team = _.find(SPS.teams, { 'id': SPS.games[key]["pitchers"][i]["team_id"] });
-            team_slug = _.upperCase(_.replace(team.slug, 'mlb-', ''));
+            var team_slug = _.upperCase(_.replace(team.slug, 'mlb-', ''));
+
+            var player_slug = _.replace( SPS.games[key]["players"][i]["slug"], 'mlb-', '');
+
+            var player_id = SPS.games[key]["players"][i]["mlbam_id"];
+            var brooks = 'http://www.brooksbaseball.net/velo.php?player=' +player_id+ '&b_hand=-1&time=game&minmax=ci&var=mph&s_type=2&startDate=01/01/2017&endDate=01/01/2019&gFilt=&pFilt=FA|SI|FC';
+            var savant = 'https://baseballsavant.mlb.com/savant-player/'+player_slug+'-'+player_id;
+            var mlb = 'http://m.mlb.com/player/'+player_id+'/'+player_slug;
+
             html += '<li>';
             html += team_slug + ' ';
-            html += '<a target="_blank" href="'+url_pre+SPS.games[key]["players"][i]["mlbam_id"]+url_suf+'">';
+            html += ' <a target="_blank" href="'+mlb+'">';
             html += SPS.games[key]["players"][i]["last_name"];
-            html += '</a>';
+            html += '</a> ';
+            html += ' <a target="_blank" href="'+brooks+'">B</a> ';
+            html += ' <a target="_blank" href="'+savant+'">S</a> ';
             html += ' ' + SPS.games[key]["pitchers"][i]["updated_at"];
             html += '</li>';
+
         }
         html += '</ul>';
     });
