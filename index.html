@@ -90,7 +90,7 @@ var html = '';
 var config = { 
     "day": "today",
     "env": "pro",
-    "debug": false
+    "debug": true
 };
 
 /* TEAMS */
@@ -136,27 +136,45 @@ fetch(games_request).then(function(response) {
             var result = { 
                 "id": game.id,
                 "label": game.label,
+                "home_id": game.home_team_id,
+                "away_id": game.away_team_id,
                 "pitchers": [],
                 "players": []
             };
+
+if (game.id === "919d0154-a4ae-4de7-887a-5f6c5b196299") {
             result.pitchers = _.filter(data.probable_pitchers, function(pitcher, key, pitchers) {
                 return pitcher.game_id === result.id;
             });
             result.pitchers.forEach(function(pitcher) {
 
-                _.filter(data.players, function(player, key, players) {
-                    if ( player.id == pitcher.player_id ) {
-                        result.players.push(player);
-                    }
-                });
-                _.filter(data.teams, function(team, key, teams) {
-                    if ( team.id == pitcher.player_id ) {
-                        result.players.push(player);
-                    }
-                });
+                var dup_player = _.find(result.players, { "team_id": pitcher.team_id });
+                if (dup_player && dup_player.updated_at > pitcher.updated_at) {
+                    console.log(pitcher.team_id, dup_player);
+                    //_.remove(result.players, 
+                };
 
+
+                    var player = _.find(data.players, { "id": pitcher.player_id });
+                    player.latest = true;
+
+                    result.players.push(player);
             });
+
+            // result.players.forEach(function(player) {
+            //     // var player = _.find(data.players, { "id": pitcher.player_id });
+            //     // result.players.push(player);
+            //     //console.log(player);
+            // });
             SPS.games.push(result);
+}
+                // _.filter(data.teams, function(team, key, teams) {
+                //     if ( team.id == pitcher.player_id ) {
+                //         result.players.push(player);
+                //     }
+                // });
+
+
         });
         if (config.debug) { console.log(SPS.games); }
 
