@@ -1,0 +1,123 @@
+<!doctype html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SPs</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+
+<style>
+/* utilities */
+html { box-sizing:border-box; } 
+*, *::before, *::after { box-sizing:inherit; }
+.clearfix::after { content:''; display:table; clear:both; }
+.center-block { margin:0 auto; }
+.box-shadow { box-shadow:0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); }
+a { color:inherit; text-decoration:none; }
+
+.section { margin-top:16px; margin-bottom:16px; }
+
+body { margin:0; padding:0; font-size:10px; }
+
+
+</style>
+
+    <script src="./lodash.min.js"></script>
+
+</head>
+<body>
+
+<div class="container">
+    <div id="links" class="section nav">
+        <a class="home" href="/">SPs</a>
+        <a class="item box-shadow" href="/?day=tomorrow">t</a>
+        <a class="item box-shadow" target="_blank" href="http://mlb.mlb.com/news/probable_pitchers/?tcid=nav_mlb_schedule">mlb old</a>
+        <a class="item box-shadow" target="_blank" href="https://www.mlb.com/probable-pitchers">mlb new</a>
+        <a class="item box-shadow" target="_blank" href="https://www.covers.com/sports/mlb/matchups">covers</a>
+        <a class="item box-shadow" target="_blank" href="http://www.espn.com/mlb/scoreboard">espn</a>
+        <a class="item box-shadow" target="_blank" href="https://www.fangraphs.com/leaders.aspx?pos=all&amp;stats=pit&amp;lg=all&amp;qual=20&amp;type=1&amp;season=2018&amp;month=3&amp;season1=2018&amp;ind=0&amp;team=0&amp;rost=0&amp;age=0&amp;filter=&amp;players=0&amp;sort=14,d&amp;page=1_50">fg-</a>
+    </div>
+    <div id="content" class="section tablegrid"></div>
+</div>
+
+<script type="text/javascript">
+function autorun() {
+
+var SPS = {
+    player: []
+};
+var html = '';
+var config = { 
+    "day": "today",
+    "env": "prod",
+    "debug": true
+};
+
+/* URL PARAMS */
+var getQueryString = function (field, url) {
+    var href = url ? url : window.location.href;
+    var reg = new RegExp('[?&]' + field + '=([^&#]*)', 'i');
+    var string = reg.exec(href);
+    return string ? string[1] : null;
+};
+var player_slug = getQueryString('player');
+if (!player_slug) { return; }
+
+if (config.env === "prod") {
+    var url_player = 'https://api.stattleship.com/baseball/mlb/player_season_stats?player_id=' + player_slug + '&season_id=mlb-2018&on=today';
+} else {
+    var url_player = './player.json';
+}
+if (config.debug) { console.log(url_player); }
+
+var player_request = new Request(url_player, {
+    method: 'GET',
+    mode: 'cors',
+    cache: 'default',
+    headers: new Headers({
+        'Content-Type': 'application/json',
+        'Authorization': 'Token token=b435ac1d7bc7ef8d92386f465070fe95', 
+        'Accept': 'application/vnd.stattleship.com; version=1'
+    })
+});
+
+fetch(player_request).then(function(response) {
+    if (config.debug) { console.log(response); }
+    return response.json();
+}).then(function(data) {
+    var stats = data.player_season_stats[0];
+    if (config.debug) { console.log(stats); }
+    SPS.player = {
+        "ground_ball_to_fly_ball_ratio": stats.ground_ball_to_fly_ball_ratio,
+        "opponents_batting_average": stats.opponents_batting_average,
+        "pitcher_games_played": stats.pitcher_games_played,
+        "pitcher_games_started": stats.pitcher_games_started,
+        "quality_starts": stats.quality_starts,
+        "strikeouts_per_9_innings": stats.strikeouts_per_9_innings,
+        "strikeouts_per_walk": stats.strikeouts_per_walk,
+        "whip": stats.whip
+    }
+}).then(function() {
+    html += '<ul>';
+    Object.keys(SPS.player).forEach(function(key) {
+        html += '<li>' + key + ': ' + SPS.player[key] + '</li>';
+    });
+    html += '</ul>';
+
+    var elem = document.getElementById('content');
+    elem.innerHTML = html;
+    if (config.debug) { console.log(SPS); }
+}); // end fetch
+} // end autorun
+
+
+if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
+else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
+else window.onload = autorun;
+</script>
+
+
+</body>
+</html>

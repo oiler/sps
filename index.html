@@ -107,9 +107,6 @@ if (day === 'tomorrow') {
     config.day = 'tomorrow';
 }
 
-
-console.log(day);
-
 /* TEAMS */
 var url_teams = 'teams.json';
 var teams_request = new Request(url_teams, {});
@@ -226,9 +223,11 @@ fetch(games_request).then(function(response) {
 
             html += '<div class="sp_row">';
             html += '<div class="team">' + team_slug + '</div>';
-            html += '<div class="name">';
+            html += '<div class="name"><a target="_blank" href="player.html?player=';
+            html += SPS.games[key]["players"][i]["slug"];
+            html += '">';
             html += SPS.games[key]["players"][i]["last_name"];
-            html += '</div>';
+            html += '</a></div>';
             html += '<div class="mlb"><a target="_blank" href="' + mlb + '">mlb</a></div>';
             html += '<div class="brooks"><a target="_blank" href="' + brooks + '">brooks</a></div>';
             html += '<div class="savant"><a target="_blank" href="' + savant + '">savant</a></div>';
