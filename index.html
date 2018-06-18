@@ -47,7 +47,7 @@ body { margin:0; padding:0; font-size:10px; }
   grid-column: 1 / -1;
   display: grid;
   /*grid-template-columns: repeat(5, minmax(50px, 1fr));*/
-  grid-template-columns:10% 32% 16% 16% 22%;
+  grid-template-columns:10% 32% 8% 12% 12% 22%;
 }
 
 .tablegrid .game_col { margin:16px 2%; }
@@ -226,9 +226,10 @@ fetch(games_request).then(function(response) {
 
             html += '<div class="sp_row">';
             html += '<div class="team">' + team_slug + '</div>';
-            html += '<div class="name"><a target="_blank" href="' + mlb + '">';
+            html += '<div class="name">';
             html += SPS.games[key]["players"][i]["last_name"];
-            html += '</a></div>';
+            html += '</div>';
+            html += '<div class="mlb"><a target="_blank" href="' + mlb + '">mlb</a></div>';
             html += '<div class="brooks"><a target="_blank" href="' + brooks + '">brooks</a></div>';
             html += '<div class="savant"><a target="_blank" href="' + savant + '">savant</a></div>';
             html += '<div class="datetime">' + updated_at_date + ' ' + updated_at_time + '</div>';
