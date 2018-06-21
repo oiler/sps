@@ -46,13 +46,14 @@ body { margin:0; padding:0; font-size:10px; }
 function autorun() {
 
 var SPS = {
-    player: []
+    player: [],
+    games: []
 };
 var html = '';
 var config = { 
     "day": "today",
     "env": "prod",
-    "debug": true
+    "debug": false
 };
 
 /* URL PARAMS */
@@ -99,6 +100,61 @@ fetch(player_request).then(function(response) {
         "strikeouts_per_walk": stats.strikeouts_per_walk,
         "whip": stats.whip
     }
+/*
+}).then(function() {
+    if (config.env === "prod") {
+        var url_gamelog = 'https://api.stattleship.com/baseball/mlb/game_logs?player_id=' + player_slug + '&season_id=mlb-2018&on=today';
+    } else {
+        var url_gamelog = './gamelog.json';
+    }
+    var gamelog_request = new Request(url_gamelog, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'default',
+        headers: new Headers({
+            'Content-Type': 'application/json',
+            'Authorization': 'Token token=b435ac1d7bc7ef8d92386f465070fe95', 
+            'Accept': 'application/vnd.stattleship.com; version=1'
+        })
+    });
+    fetch(gamelog_request).then(function(gamelog_response) {
+        if (config.debug) { console.log(gamelog_response); }
+        return gamelog_response.json();
+    }).then(function(gamelog_data) {
+        console.log(gamelog_data);
+
+        var lastThreeStarts = [];
+        var games = gamelog_data.games;
+        var sorted = _.sortBy(games, 'ended_at');
+        var lastsorted = _.takeRight(sorted, 3);
+        
+        // filter through last three games
+        _.filter(lastsorted, function(game, key, games) {
+        // push game data for last three games
+            lastThreeStarts.push(game);
+        // filter through gamelogs if game id is among last three games
+            _.filter(gamelog_data.game_logs, function(gamelog, game_key, gamelog_data) {
+                if ( game.id == gamelog.game_id ) {
+                    //console.log(key, game_key);
+                    var pitch_data = {
+                        "innings_pitched": gamelog.innings_pitched,
+                        "batters_faced": gamelog.batters_faced,
+                        "pitches_thrown": gamelog.pitches_thrown,
+                        "balls_thrown": gamelog.balls_thrown,
+                        "strikes_thrown": gamelog.strikes_thrown,
+                        "strike_percentage": gamelog.strike_percentage,
+                        "earned_run_average": gamelog.earned_run_average,
+                        "whip": gamelog.whip,
+                        "strike_percentage": gamelog.strike_percentage
+                    };
+                    _.assign(lastThreeStarts[key], pitch_data);
+                }
+            });
+        });
+        SPS.games.push(lastThreeStarts);
+        console.log(SPS.games);
+    });
+*/
 }).then(function() {
     html += '<ul>';
     Object.keys(SPS.player).forEach(function(key) {
